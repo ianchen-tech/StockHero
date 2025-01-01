@@ -3,7 +3,6 @@ __pycache__/
 *.py[cod]
 
 # Virtual environment
-venv/
 .env
 
 # Poetry
@@ -18,3 +17,6 @@ venv/
 
 # Misc
 .DS_Store
+
+# docker
+.dockerignore
