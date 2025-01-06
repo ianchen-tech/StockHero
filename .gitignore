@@ -8,9 +8,6 @@ __pycache__/
 # Poetry
 .venv/
 
-# Streamlit
-.streamlit/
-
 # IDE files
 .vscode/
 .idea/
@@ -18,5 +15,8 @@ __pycache__/
 # Misc
 .DS_Store
 
-# docker
-.dockerignore
+# DuckDB
+*.db
+
+# Backup
+backup/
