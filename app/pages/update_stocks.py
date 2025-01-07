@@ -3,6 +3,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 import streamlit as st
 from datetime import datetime
 from jobs.daily_update import update_stock_data
+import threading
 
 # 隱藏所有 Streamlit 預設的 UI 元素
 st.set_page_config(
@@ -18,6 +19,13 @@ hide_streamlit_style = """
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+def run_update(update_date):
+    try:
+        success, message = update_stock_data(update_date)
+        print(f"Update completed: {message}")
+    except Exception as e:
+        print(f"Update failed: {str(e)}")
+
 # 從 URL 獲取日期參數
 date_str = st.query_params.get('date', None)
 
@@ -28,11 +36,12 @@ try:
     else:
         update_date = datetime.now()
     
-    # 執行更新
-    success, message = update_stock_data(update_date)
+    # 在背景執行更新
+    thread = threading.Thread(target=run_update, args=(update_date,))
+    thread.start()
 
-    # 回傳純文字結果
-    st.text(message)
+    # 立即回傳成功訊息
+    st.text("Update process started successfully")
     
 except ValueError as e:
     st.text(f"Invalid date format. Please use YYYYMMDD format. Error: {str(e)}")
