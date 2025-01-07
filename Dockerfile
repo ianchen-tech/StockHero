@@ -5,7 +5,7 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # 安裝Poetry
-RUN pip install poetry
+RUN pip install poetry==1.7.1
 
 # 複製pyproject.toml和poetry.lock文件（如果存在）
 COPY pyproject.toml poetry.lock* ./
