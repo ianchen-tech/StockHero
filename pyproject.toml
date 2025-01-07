@@ -2,7 +2,7 @@
 name = "stockhero"
 version = "0.1.0"
 description = ""
-authors = ["ianycchen <161403000+ianycchen@users.noreply.github.com>"]
+authors = ["ianycchen <ian@cloud-latitude.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
