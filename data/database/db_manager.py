@@ -31,13 +31,13 @@ class DatabaseManager:
     def _download_db_from_gcs(self):
         """從 Cloud Storage 下載資料庫檔案"""
         bucket = self.storage_client.bucket(self.bucket_name)
-        blob = bucket.blob('stock.db')
+        blob = bucket.blob('StockHero.db')
         blob.download_to_filename(self.db_path)
     
     def _upload_db_to_gcs(self):
         """上傳資料庫檔案到 Cloud Storage"""
         bucket = self.storage_client.bucket(self.bucket_name)
-        blob = bucket.blob('stock.db')
+        blob = bucket.blob('StockHero.db')
         blob.upload_from_filename(self.db_path)
     
     def upsert_stock_info(self, stock_id: str, stock_name: str, industry: str, follow: bool, market_type: str, source: str):
