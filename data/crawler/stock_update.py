@@ -169,7 +169,6 @@ class StockUpdater:
             failed_stocks = []  # 記錄更新失敗的股票
             
             for stock_id, stock_name in followed_stocks:
-                logger.info(f"Updating {stock_id} {stock_name}")
 
                 retry_count = 0
                 success = False
