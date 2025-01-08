@@ -6,6 +6,10 @@ import pandas as pd
 from datetime import datetime, timedelta
 from data.database.db_manager import DatabaseManager
 from data.database.models import StockDB
+from config.logger import setup_logging
+
+# 設置 logger
+logger = setup_logging()
 
 class StockUpdater:
     def __init__(self, db_manager: DatabaseManager):
@@ -35,6 +39,7 @@ class StockUpdater:
             data = response.json()
             
             if data.get("stat") != "OK":
+                logger.info(f"Market status check: No data available (stat: {data.get('stat')})")
                 return False
             
             target_date = date.strftime("%Y/%m/%d")
@@ -43,12 +48,14 @@ class StockUpdater:
                 year = int(date_str.split('/')[0]) + 1911
                 converted_date = f"{year}/{date_str[4:]}"
                 if converted_date == target_date:
+                    logger.info(f"Market was open on {date.strftime('%Y-%m-%d')}")
                     return True
             
+            logger.info(f"Market was closed on {date.strftime('%Y-%m-%d')}")
             return False
             
         except Exception as e:
-            print(f"Error checking market status: {e}")
+            logger.exception(f"Error checking market status: {e}")
             return False
 
     def fetch_daily_data(self, stock_id: str, stock_name: str, date: datetime):
@@ -64,7 +71,7 @@ class StockUpdater:
             data = response.json()
             
             if data.get("stat") != "OK":
-                print(f"Error fetching data for {stock_id}: {data.get('stat')}")
+                logger.error(f"Error fetching data for {stock_id}: {data.get('stat')}")
                 return None
             
             target_date = date.strftime("%Y/%m/%d")
@@ -102,13 +109,13 @@ class StockUpdater:
                             None, None, None, None            # 均線值先設為 None
                         )
                     except (ValueError, IndexError) as e:
-                        print(f"Error processing data for {stock_id}: {e}")
+                        logger.exception(f"Error processing data for {stock_id}: {e}")
                         return None
             
             return None
             
         except Exception as e:
-            print(f"Error fetching data for {stock_id}: {e}")
+            logger.exception(f"Error fetching data for {stock_id}: {e}")
             return None
 
     def calculate_moving_averages(self, stock_id: str):
@@ -152,7 +159,7 @@ class StockUpdater:
             update_date = datetime.now()
 
         if not self.check_market_open(update_date):
-            print(f"Market was closed on {update_date.strftime('%Y-%m-%d')}")
+            logger.info(f"Market was closed on {update_date.strftime('%Y-%m-%d')}")
             return False, f"No trading data available for {update_date.strftime('%Y-%m-%d')}"
 
         self.db_manager.connect()
@@ -162,7 +169,7 @@ class StockUpdater:
             failed_stocks = []  # 記錄更新失敗的股票
             
             for stock_id, stock_name in followed_stocks:
-                print(f"Updating {stock_id} {stock_name}")
+                logger.info(f"Updating {stock_id} {stock_name}")
 
                 retry_count = 0
                 success = False
@@ -170,8 +177,8 @@ class StockUpdater:
                 while retry_count < self.max_retries and not success:
                     if retry_count > 0:
                         retry_delay = self.retry_delay * (2 ** (retry_count - 1))  # 指數退避
-                        print(f"Retrying {stock_id} {stock_name} (Attempt {retry_count + 1}/{self.max_retries})")
-                        print(f"Waiting {retry_delay} seconds before retry...")
+                        logger.warning(f"Retrying {stock_id} {stock_name} (Attempt {retry_count + 1}/{self.max_retries})")
+                        logger.warning(f"Waiting {retry_delay} seconds before retry...")
                         time.sleep(retry_delay)
                 
                     # 抓取當天資料
@@ -184,9 +191,9 @@ class StockUpdater:
                             # 重新計算均線
                             self.calculate_moving_averages(stock_id)
                             success = True
-                            print(f"Successfully updated {stock_id} {stock_name}")
+                            logger.info(f"Successfully updated {stock_id} {stock_name}")
                         except Exception as e:
-                            print(f"Error updating database for {stock_id}: {e}")
+                            logger.exception(f"Error updating database for {stock_id}: {e}")
                             retry_count += 1
                     else:
                         retry_count += 1
@@ -199,17 +206,17 @@ class StockUpdater:
             # 處理最終結果
             if not failed_stocks:
                 success_message = f"Daily update completed successfully for {update_date.strftime('%Y-%m-%d')}"
-                print(success_message)
+                logger.info(success_message)
                 return True, success_message
             else:
                 failed_message = f"Update completed with some failures for {update_date.strftime('%Y-%m-%d')}. "
                 failed_message += f"Failed stocks: {', '.join([f'{id}({name})' for id, name in failed_stocks])}"
-                print(failed_message)
+                logger.error(failed_message)
                 return False, failed_message
             
         except Exception as e:
             error_message = f"Error during daily update: {e}"
-            print(error_message)
+            logger.exception(error_message)
             return False, error_message
         
         finally:
@@ -223,7 +230,7 @@ def main():
     )
     
     updater = StockUpdater(db_manager)
-    test_date = datetime(2025, 1, 3)
+    test_date = datetime(2025, 1, 6)
     success, message = updater.update_daily_data(test_date)
     
     print(f"Test result: {'Success' if success else 'Failed'}")

@@ -10,6 +10,12 @@ def setup_logging():
 
     # 創建 logger
     logger = logging.getLogger('StockHero')
+
+    # 如果 logger 已經有 handlers，直接返回
+    if logger.handlers:
+        return logger
+
+    # 設置級別
     logger.setLevel(logging.INFO)
 
     # 設置格式
