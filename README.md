@@ -27,7 +27,8 @@ StockHero/
 ├── jobs/                       # 排程任務
 │   └── daily_update.py         # 每日更新資料
 ├── config/                     # 設定檔
-│   └── config.py               # 一般設定
+│   ├── config.py               # 一般設定
+│   └── logger.py               # logging 設置
 ├── utils/                      # 通用工具函數目錄
 ├── tests/                      # 測試檔案
 ├── notebook/                   # 筆記

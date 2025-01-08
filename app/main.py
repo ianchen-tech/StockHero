@@ -5,6 +5,10 @@ import hmac
 from pathlib import Path
 from dotenv import load_dotenv
 from app.components import stock_screener
+from config.logger import setup_logging
+
+# 設置 logger
+logger = setup_logging()
 
 # 載入 .env 檔案
 load_dotenv()
@@ -29,6 +33,7 @@ def check_password():
         """驗證輸入的密碼"""
         if hmac.compare_digest(st.session_state["password"], os.getenv('PASSWORD')):
             st.session_state.authenticated = True
+            logger.info("登入成功")
             del st.session_state["password"]
         else:
             st.session_state.authenticated = False

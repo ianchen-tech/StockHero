@@ -4,6 +4,10 @@ import streamlit as st
 from datetime import datetime
 from jobs.daily_update import update_stock_data
 import threading
+from config.logger import setup_logging
+
+# 設置 logger
+logger = setup_logging()
 
 # 隱藏所有 Streamlit 預設的 UI 元素
 st.set_page_config(
@@ -22,9 +26,9 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 def run_update(update_date):
     try:
         success, message = update_stock_data(update_date)
-        print(f"Update completed: {message}")
+        logger.info(f"Update completed: {message}")
     except Exception as e:
-        print(f"Update failed: {str(e)}")
+        logger.exception(f"Update failed: {str(e)}")
 
 # 從 URL 獲取日期參數
 date_str = st.query_params.get('date', None)

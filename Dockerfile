@@ -12,7 +12,8 @@ COPY pyproject.toml poetry.lock* ./
 
 # 安裝項目依賴
 RUN poetry config virtualenvs.create false \
-  && poetry install --no-interaction --no-ansi
+  && poetry install --no-interaction --no-ansi \
+  && pip install google-cloud-logging
 
 # 複製項目文件
 COPY . .
