@@ -48,6 +48,8 @@ class DatabaseManager:
         blob = bucket.blob('StockHero.db')
         blob.upload_from_filename(self.db_path)
         logger.info(f"Uploaded database to GCS")
+        os.remove(self.db_path)
+        logger.info(f"Removed local database file: {self.db_path}")
     
     def upsert_stock_info(self, stock_id: str, stock_name: str, industry: str, follow: bool, market_type: str, source: str):
         """寫入股票基本資料"""
