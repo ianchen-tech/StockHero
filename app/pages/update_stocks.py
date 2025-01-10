@@ -41,13 +41,19 @@ try:
         update_date = datetime.now()
     
     # 在背景執行更新
-    thread = threading.Thread(target=run_update, args=(update_date,))
+    thread = threading.Thread(target=run_update, args=(update_date,), daemon=False)
     thread.start()
 
     # 立即回傳成功訊息
     st.text("Update process started successfully")
+    logger.info(f"Update thread started for date: {update_date}")
     
 except ValueError as e:
-    st.text(f"Invalid date format. Please use YYYYMMDD format. Error: {str(e)}")
+    error_msg = f"Invalid date format. Please use YYYYMMDD format. Error: {str(e)}"
+    st.text(error_msg)
+    logger.error(error_msg)
+    
 except Exception as e:
-    st.text(f"Error: {str(e)}")
+    error_msg = f"Error: {str(e)}"
+    st.text(error_msg)
+    logger.error(error_msg)
