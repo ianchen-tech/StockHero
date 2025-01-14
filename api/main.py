@@ -1,15 +1,23 @@
 import sys, os
+import asyncio
 from datetime import datetime
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, BackgroundTasks
 from jobs.daily_update import update_stock_data
 from config.logger import setup_logging
 
 app = FastAPI()
 logger = setup_logging()
 
+async def run_update_in_background(update_date):
+    try:
+        success, message = update_stock_data(update_date)
+        logger.info(f"Background task completed: {message}")
+    except Exception as e:
+        logger.exception("Background task failed")
+
 @app.get("/update-stock")
-async def trigger_stock_update(date: str = None):
+async def trigger_stock_update(background_tasks: BackgroundTasks, date: str = None):
     try:
         if date:
             try:
@@ -21,9 +29,8 @@ async def trigger_stock_update(date: str = None):
                 )
         else:
             update_date = None
-            
-        success, message = update_stock_data(update_date)
-        return {"status": "done", "message": message}
+        background_tasks.add_task(run_update_in_background, update_date)
+        return {"status": "accepted", "message": "Update process started in background"}
     except Exception as e:
         logger.exception("API endpoint error")
         raise HTTPException(status_code=500, detail=str(e))
