@@ -35,6 +35,18 @@ async def trigger_stock_update(background_tasks: BackgroundTasks, date: str = No
         logger.exception("API endpoint error")
         raise HTTPException(status_code=500, detail=str(e))
 
+@app.post("/activate")
+async def activate_service():
+    """
+    激活服務的API端點
+    """
+    try:
+        logger.info("Service activation request received")
+        return {"status": "success", "message": "Service activated"}
+    except Exception as e:
+        logger.exception("Service activation failed")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
