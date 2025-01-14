@@ -5,14 +5,8 @@ Folder structure：
 
 ```
 StockHero/
-├── app/                        # Streamlit 主目錄
-│   ├── pages/                  # 介面目錄
-│   │   └── update_stocks.py    # 排程介面
-│   ├── components/             # 頁面組件
-│   │   ├── stock_detail.py     # 個股資訊與技術圖
-│   │   ├── stock_screener.py   # 個股推薦
-│   │   └── institutional.py    # 法人買賣趨勢
-│   └── main.py                 # Streamlit 主程式
+├── api/                        # API 端點
+│   └── main.py                 # API 主程式
 ├── data/                       # 資料處理相關
 │   ├── crawler/                # 資料抓取模組
 │   │   ├── stocks_info.py      # 各產業股票列表

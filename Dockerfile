@@ -22,4 +22,4 @@ COPY . .
 ENV PORT 8080
 
 # 運行應用
-CMD streamlit run --server.port $PORT app/main.py
+CMD uvicorn api.main:app --host 0.0.0.0 --port $PORT

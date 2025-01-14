@@ -159,7 +159,6 @@ class StockUpdater:
             update_date = datetime.now()
 
         if not self.check_market_open(update_date):
-            logger.info(f"Market was closed on {update_date.strftime('%Y-%m-%d')}")
             return False, f"No trading data available for {update_date.strftime('%Y-%m-%d')}"
 
         self.db_manager.connect()

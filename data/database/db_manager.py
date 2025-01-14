@@ -13,7 +13,6 @@ class DatabaseManager:
         self.db_path = db_path
         self.bucket_name = bucket_name
         self.conn = None
-        self.storage_client = storage.Client()
         self.db_modified = False
         self.cloud = False
         
@@ -21,6 +20,7 @@ class DatabaseManager:
         """建立資料庫連接"""
         if not os.path.exists(self.db_path):
             self.cloud = True
+            self.storage_client = storage.Client()
             self._download_db_from_gcs()
             
         self.conn = duckdb.connect(self.db_path)
