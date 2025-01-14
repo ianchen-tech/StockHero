@@ -35,7 +35,7 @@ async def trigger_stock_update(background_tasks: BackgroundTasks, date: str = No
         logger.exception("API endpoint error")
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/activate")
+@app.get("/activate")
 async def activate_service():
     """
     激活服務的API端點
