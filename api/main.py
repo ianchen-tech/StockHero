@@ -41,7 +41,6 @@ async def activate_service():
     激活服務的API端點
     """
     try:
-        logger.info("Service activation request received")
         return {"status": "success", "message": "Service activated"}
     except Exception as e:
         logger.exception("Service activation failed")

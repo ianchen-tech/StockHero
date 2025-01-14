@@ -15,7 +15,7 @@ class StockUpdater:
     def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager
         self.base_url = "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY"
-        self.max_retries = 3
+        self.max_retries = 10
         self.retry_delay = 5
     
     def clean_number(self, value: str) -> float:
