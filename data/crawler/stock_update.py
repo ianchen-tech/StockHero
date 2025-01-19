@@ -131,6 +131,9 @@ class StockUpdater:
         # 將資料轉換為 DataFrame 並反轉順序（使最新的在最後）
         df = pd.DataFrame(data, columns=['date', 'stock_id', 'closing_price'])
         df = df.iloc[::-1].reset_index(drop=True)
+
+        # 先用前一個有效值填充空值
+        df['closing_price'] = df['closing_price'].ffill()
         
         # 計算各期均線
         ma_values = {}
