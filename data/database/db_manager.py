@@ -46,7 +46,7 @@ class DatabaseManager:
         """上傳資料庫檔案到 Cloud Storage"""
         bucket = self.storage_client.bucket(self.bucket_name)
         blob = bucket.blob('StockHero.db')
-        blob.upload_from_filename(self.db_path)
+        blob.upload_from_filename(self.db_path, timeout=300)
         logger.info(f"Uploaded database to GCS")
         os.remove(self.db_path)
         logger.info(f"Removed local database file: {self.db_path}")
