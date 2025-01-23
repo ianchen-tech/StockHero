@@ -1,6 +1,7 @@
 import os
 from data.database.db_manager import DatabaseManager
 from data.crawler.stock_update import StockUpdater
+from data.analysis.screening import StockScreener
 from datetime import datetime
 from config.logger import setup_logging
 
@@ -28,15 +29,25 @@ def update_stock_data(update_date: datetime = None):
         
         # 執行更新
         updater = StockUpdater(db_manager)
-        success, message = updater.update_daily_data(update_date)
+        update_success, update_message = updater.update_daily_data(update_date)
         
-        if success:
-            logger.info(f"Update completed successfully: {message}")
-        else:
-            logger.error(f"Update failed: {message}")
+        if update_success:
+            logger.info(f"Stock data update completed successfully: {update_message}")
             
-        return success, message
-        
+            # 執行條件篩選
+            screener = StockScreener(db_manager)
+            screen_success, screen_message = screener.screen_stocks(update_date)
+            
+            if screen_success:
+                logger.info(f"Stock screening completed successfully: {screen_message}")
+                return True, "Update and screening completed successfully"
+            else:
+                logger.error(f"Stock screening failed: {screen_message}")
+                return False, f"Update succeeded but screening failed: {screen_message}"
+        else:
+            logger.error(f"Stock data update failed: {update_message}")
+            return False, update_message
+            
     except Exception as e:
         error_message = f"Update failed: {str(e)}"
         logger.exception("Unexpected error during update")

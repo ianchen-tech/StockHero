@@ -223,8 +223,9 @@ class StockUpdater:
         finally:
             self.db_manager.close()
 
-def main():
-    """測試程式"""
+
+if __name__ == "__main__":
+
     db_manager = DatabaseManager(
         db_path="StockHero.db",
         bucket_name="ian-line-bot-files"
@@ -236,6 +237,3 @@ def main():
     
     print(f"Test result: {'Success' if success else 'Failed'}")
     print(f"Message: {message}")
-
-if __name__ == "__main__":
-    main()

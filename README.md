@@ -16,7 +16,6 @@ StockHero/
 │   │   ├── db_manager.py       # 資料庫管理
 │   │   └── models.py           # 資料模型定義
 │   └── analysis/               # 分析邏輯
-│       ├── technical.py        # 技術分析
 │       └── screening.py        # 選股邏輯
 ├── jobs/                       # 排程任務
 │   └── daily_update.py         # 每日更新資料

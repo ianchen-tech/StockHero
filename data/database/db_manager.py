@@ -51,12 +51,12 @@ class DatabaseManager:
         os.remove(self.db_path)
         logger.info(f"Removed local database file: {self.db_path}")
     
-    def upsert_stock_info(self, stock_id: str, stock_name: str, industry: str, follow: bool, market_type: str, source: str):
+    def upsert_stock_info(self, stock_id: str, stock_name: str, industry: str, follow: bool, market_type: str, source: str, conditions: str = None):
         """寫入股票基本資料"""
         now = datetime.now()
         self.conn.execute(
             StockDB.UPSERT_STOCK_INFO,
-            [stock_id, stock_name, industry, follow, market_type, source, now, now]
+            [stock_id, stock_name, industry, follow, market_type, source, now, now, conditions]
         )
         self.db_modified = True
 
@@ -68,3 +68,12 @@ class DatabaseManager:
     def get_followed_stocks(self):
         """獲取所有追蹤的股票清單"""
         return self.conn.execute(StockDB.GET_FOLLOWED_STOCKS).fetchall()
+
+    def update_stock_conditions(self, stock_conditions: dict):
+        """批次更新股票的篩選判斷結果"""
+        for stock_id, conditions in stock_conditions.items():
+            self.conn.execute(
+                StockDB.UPDATE_STOCK_CONDITIONS,
+                [conditions, datetime.now(), stock_id]
+            )
+        self.db_modified = True

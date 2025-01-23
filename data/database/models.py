@@ -32,15 +32,16 @@ class StockDB:
             market_type VARCHAR,
             source VARCHAR,
             created_at TIMESTAMP,
-            updated_at TIMESTAMP
+            updated_at TIMESTAMP,
+            conditions JSON -- Ex:{"volume_increase": true, "above_ma5": true, "above_ma10": false, "above_ma20": true, "above_ma60": false}
         )
     """
     
     # 定義常用的 SQL 查詢語句
     UPSERT_STOCK_INFO = """
         INSERT OR REPLACE INTO stock_info
-        (stock_id, stock_name, industry, follow, market_type, source, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        (stock_id, stock_name, industry, follow, market_type, source, created_at, updated_at, conditions)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
     
     UPSERT_DAILY_DATA = """
@@ -77,4 +78,28 @@ class StockDB:
         UPDATE stock_daily
         SET ma5 = ?, ma10 = ?, ma20 = ?, ma60 = ?
         WHERE stock_id = ? AND date = ?
+    """
+
+    GET_LATEST_TWO_DAYS_DATA = """
+        SELECT date, stock_id, trade_volume, closing_price, ma5, ma10, ma20, ma60
+        FROM stock_daily
+        WHERE date IN (
+            SELECT DISTINCT date 
+            FROM stock_daily 
+            ORDER BY date DESC 
+            LIMIT 2
+        )
+        AND stock_id IN (
+            SELECT stock_id 
+            FROM stock_info 
+            WHERE follow = TRUE
+        )
+        ORDER BY stock_id, date DESC
+    """
+
+    UPDATE_STOCK_CONDITIONS = """
+        UPDATE stock_info 
+        SET conditions = ?, 
+            updated_at = ?
+        WHERE stock_id = ?
     """
