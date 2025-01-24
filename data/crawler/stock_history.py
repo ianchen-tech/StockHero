@@ -141,22 +141,22 @@ class StockHistoryCrawler:
         """爬取所有追蹤股票的歷史資料"""
         followed_stocks = self.db_manager.get_followed_stocks()
         
-        # # 第一步：抓取所有基本資料
-        # current_date = start_date
-        # while current_date <= end_date:
-        #     print(current_date)
-        #     for stock_id, stock_name in followed_stocks:
-        #         # print(f"Fetching {stock_id} {stock_name} for {current_date.strftime('%Y-%m')}")
+        # 第一步：抓取所有基本資料
+        current_date = start_date
+        while current_date <= end_date:
+            print(current_date)
+            for stock_id, stock_name in followed_stocks:
+                # print(f"Fetching {stock_id} {stock_name} for {current_date.strftime('%Y-%m')}")
                 
-        #         records = self.fetch_stock_history(stock_id, stock_name, current_date)
-        #         if records:
-        #             self.db_manager.upsert_daily_data(records)
+                records = self.fetch_stock_history(stock_id, stock_name, current_date)
+                if records:
+                    self.db_manager.upsert_daily_data(records)
                 
-        #         # 避免請求過於頻繁
-        #         time.sleep(2)
+                # 避免請求過於頻繁
+                time.sleep(2)
             
-        #     # 移至下個月
-        #     current_date = (current_date.replace(day=1) + timedelta(days=32)).replace(day=1)
+            # 移至下個月
+            current_date = (current_date.replace(day=1) + timedelta(days=32)).replace(day=1)
         
         # 第二步：計算所有股票的均線
         print("Calculating moving averages...")
@@ -172,8 +172,8 @@ def main():
     db_manager.connect()
     
     crawler = StockHistoryCrawler(db_manager)
-    start_date = datetime(2025, 1, 1)
-    end_date = datetime(2025, 1, 31)
+    start_date = datetime(2024, 7, 1)
+    end_date = datetime(2025, 1, 22)
     
     try:
         crawler.crawl_followed_stocks_history(start_date, end_date)

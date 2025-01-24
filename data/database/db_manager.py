@@ -27,6 +27,7 @@ class DatabaseManager:
         # 建立資料表
         self.conn.execute(StockDB.CREATE_STOCK_DAILY_TABLE)
         self.conn.execute(StockDB.CREATE_STOCK_INFO_TABLE)
+        self.conn.execute(StockDB.CREATE_INSTITUTIONAL_TABLE)
     
     def close(self):
         """關閉資料庫連接"""
@@ -76,4 +77,9 @@ class DatabaseManager:
                 StockDB.UPDATE_STOCK_CONDITIONS,
                 [conditions, datetime.now(), stock_id]
             )
+        self.db_modified = True
+
+    def upsert_institutional_data(self, records: list):
+        """寫入三大法人交易資料"""
+        self.conn.executemany(StockDB.UPSERT_INSTITUTIONAL_DATA, records)
         self.db_modified = True
