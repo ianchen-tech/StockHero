@@ -42,7 +42,6 @@ class StockDB:
             date DATE,
             stock_id VARCHAR,
             stock_name VARCHAR,
-            industry VARCHAR,
             foreign_buy BIGINT,           -- 外陸資買進股數(不含外資自營商)
             foreign_sell BIGINT,          -- 外陸資賣出股數(不含外資自營商)
             foreign_net BIGINT,           -- 外陸資買賣超股數(不含外資自營商)
@@ -133,12 +132,12 @@ class StockDB:
 
     UPSERT_INSTITUTIONAL_DATA = """
         INSERT OR REPLACE INTO institutional_daily
-        (date, stock_id, stock_name, industry,
+        (date, stock_id, stock_name,
          foreign_buy, foreign_sell, foreign_net,
          foreign_dealer_buy, foreign_dealer_sell, foreign_dealer_net,
          trust_buy, trust_sell, trust_net,
          dealer_net, dealer_buy, dealer_sell, dealer_self_net,
          dealer_hedge_buy, dealer_hedge_sell, dealer_hedge_net,
          total_net)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """

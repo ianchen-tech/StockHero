@@ -89,13 +89,13 @@ class InstitutionalHistoryCrawler:
                     continue
                 
                 records = []
+                row_error = False
                 for row in data.get("data", []):
                     try:
                         record = (
                             date,                                  # 日期
                             row[0].strip(),                       # 證券代號
                             row[1].strip(),                       # 證券名稱
-                            self.industry_codes[industry_code],   # 產業別
                             self.clean_number(row[2]),            # 外陸資買進股數(不含外資自營商)
                             self.clean_number(row[3]),            # 外陸資賣出股數(不含外資自營商)
                             self.clean_number(row[4]),            # 外陸資買賣超股數(不含外資自營商)
@@ -116,8 +116,14 @@ class InstitutionalHistoryCrawler:
                         )
                         records.append(record)
                     except (ValueError, IndexError) as e:
-                        print(f"Error processing row: {e}")
-                        continue
+                        print(f"Error processing row for {date.strftime('%Y-%m-%d')} industry {self.industry_codes[industry_code]}-{row[0].strip()}: {e}")
+                        row_error = True
+                        break
+                
+                if row_error:
+                    # 如果有任何一筆資料處理失敗，重新嘗試整個產業的資料
+                    retry_count += 1
+                    continue
                         
                 return records
                 
@@ -175,8 +181,8 @@ def main():
     crawler = InstitutionalHistoryCrawler(db_manager)
     
     # 設定爬取的時間範圍
-    start_date = datetime(2024, 8, 10)
-    end_date = datetime(2024, 8, 31)
+    start_date = datetime(2024, 7, 1)
+    end_date = datetime(2025, 1, 22)
     
     try:
         crawler.crawl_institutional_history(start_date, end_date)
