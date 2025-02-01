@@ -61,7 +61,7 @@ class StockScreener:
                     prev = stock_data.iloc[1]
                     
                     conditions = {
-                        "volume_increase": bool(latest['trade_volume'] >= prev['trade_volume']),
+                        "volume_increase": bool(latest['trade_volume'] >= (2 * prev['trade_volume'])),
                         "above_ma5": bool(latest['closing_price'] >= latest['ma5'] if pd.notna(latest['ma5']) else False),
                         "above_ma10": bool(latest['closing_price'] >= latest['ma10'] if pd.notna(latest['ma10']) else False),
                         "above_ma20": bool(latest['closing_price'] >= latest['ma20'] if pd.notna(latest['ma20']) else False),
