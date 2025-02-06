@@ -15,7 +15,7 @@ class StockUpdater:
     def __init__(self, db_manager: DatabaseManager):
         self.db_manager = db_manager
         self.base_url = "https://www.twse.com.tw/rwd/zh/afterTrading/STOCK_DAY"
-        self.max_retries = 10
+        self.max_retries = 8
         self.retry_delay = 5
     
     def clean_number(self, value: str) -> float:
@@ -177,7 +177,7 @@ class StockUpdater:
 
                 while retry_count < self.max_retries and not success:
                     if retry_count > 0:
-                        retry_delay = self.retry_delay * (2 ** (retry_count - 1))  # 指數退避
+                        retry_delay = min(60, self.retry_delay * (2 ** (retry_count - 1)))  # 指數退避，最大延遲60秒
                         logger.warning(f"Retrying {stock_id} {stock_name} (Attempt {retry_count + 1}/{self.max_retries})")
                         logger.warning(f"Waiting {retry_delay} seconds before retry...")
                         time.sleep(retry_delay)
