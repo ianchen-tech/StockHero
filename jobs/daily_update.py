@@ -1,4 +1,5 @@
-import os
+import sys, os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data.database.db_manager import DatabaseManager
 from data.crawler.stock_update import StockUpdater
 from data.analysis.screening import StockScreener
@@ -54,5 +55,6 @@ def update_stock_data(update_date: datetime = None):
         return False, error_message
 
 if __name__ == "__main__":
-    success, message = update_stock_data()
+    update_date = datetime.strptime("2025-02-12", "%Y-%m-%d")
+    success, message = update_stock_data(update_date)
     print(message)
