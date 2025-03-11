@@ -2,6 +2,7 @@ import sys, os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data.database.db_manager import DatabaseManager
 from data.crawler.stock_update import StockUpdater
+from data.crawler.ratio_update import RatioUpdater
 from data.analysis.screening import StockScreener
 from datetime import datetime
 from config.logger import setup_logging
@@ -35,6 +36,15 @@ def update_stock_data(update_date: datetime = None):
         if update_success:
             logger.info(f"Stock data update completed successfully: {update_message}")
             
+            # 執行本益比、淨值比和殖利率更新
+            ratio_updater = RatioUpdater(db_manager)
+            ratio_success, ratio_message = ratio_updater.update_ratio_data(update_date)
+            
+            if not ratio_success:
+                logger.warning(f"Ratio update warning: {ratio_message}")
+            else:
+                logger.info(f"Ratio update completed successfully: {ratio_message}")
+            
             # 執行條件篩選
             screener = StockScreener(db_manager)
             screen_success, screen_message = screener.screen_stocks(update_date)
@@ -55,6 +65,6 @@ def update_stock_data(update_date: datetime = None):
         return False, error_message
 
 if __name__ == "__main__":
-    update_date = datetime.strptime("2025-02-12", "%Y-%m-%d")
+    update_date = datetime.strptime("2025-03-11", "%Y-%m-%d")
     success, message = update_stock_data(update_date)
     print(message)

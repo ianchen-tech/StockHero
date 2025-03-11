@@ -34,29 +34,38 @@ class StockUpdater:
             "response": "json"
         }
         
-        try:
-            response = requests.get(self.base_url, params=params)
-            data = response.json()
-            
-            if data.get("stat") != "OK":
-                logger.info(f"Market status check: No data available (stat: {data.get('stat')})")
+        retry_count = 0
+        while retry_count < self.max_retries:
+            try:
+                response = requests.get(self.base_url, params=params)
+                data = response.json()
+                
+                if data.get("stat") != "OK":
+                    logger.info(f"Market status check: No data available (stat: {data.get('stat')})")
+                    return False
+                
+                target_date = date.strftime("%Y/%m/%d")
+                for row in data.get("data", []):
+                    date_str = row[0]
+                    year = int(date_str.split('/')[0]) + 1911
+                    converted_date = f"{year}/{date_str[4:]}"
+                    if converted_date == target_date:
+                        logger.info(f"Market was open on {date.strftime('%Y-%m-%d')}")
+                        return True
+                
+                logger.info(f"Market was closed on {date.strftime('%Y-%m-%d')}")
                 return False
-            
-            target_date = date.strftime("%Y/%m/%d")
-            for row in data.get("data", []):
-                date_str = row[0]
-                year = int(date_str.split('/')[0]) + 1911
-                converted_date = f"{year}/{date_str[4:]}"
-                if converted_date == target_date:
-                    logger.info(f"Market was open on {date.strftime('%Y-%m-%d')}")
-                    return True
-            
-            logger.info(f"Market was closed on {date.strftime('%Y-%m-%d')}")
-            return False
-            
-        except Exception as e:
-            logger.exception(f"Error checking market status: {e}")
-            return False
+                
+            except Exception as e:
+                retry_count += 1
+                if retry_count < self.max_retries:
+                    retry_delay = min(60, self.retry_delay * (2 ** (retry_count - 1)))  # 指數退避，最大延遲60秒
+                    logger.warning(f"Error checking market status: {e}. Retrying ({retry_count}/{self.max_retries})...")
+                    logger.warning(f"Waiting {retry_delay} seconds before retry...")
+                    time.sleep(retry_delay)
+                else:
+                    logger.exception(f"Failed to check market status after {self.max_retries} attempts: {e}")
+                    return False
 
     def fetch_daily_data(self, stock_id: str, stock_name: str, date: datetime):
         """抓取單一股票單日的資料"""
@@ -106,7 +115,8 @@ class StockUpdater:
                             price_change,                     # 漲跌價差
                             change_percent,                   # 漲跌百分比
                             int(row[8].replace(",", "")),     # 成交筆數
-                            None, None, None, None            # 均線值先設為 None
+                            None, None, None, None,           # 均線值先設為 None
+                            None, None, None                  # 本益比、淨值比、殖利率先設為 None
                         )
                     except (ValueError, IndexError) as e:
                         logger.exception(f"Error processing data for {stock_id}: {e}")

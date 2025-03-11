@@ -19,6 +19,9 @@ class StockDB:
             ma10 DOUBLE,                 -- 10日均線
             ma20 DOUBLE,                 -- 20日均線
             ma60 DOUBLE,                 -- 60日均線
+            pe_ratio DOUBLE,             -- 本益比
+            pb_ratio DOUBLE,             -- 淨值比
+            dividend_yield DOUBLE,       -- 殖利率
             PRIMARY KEY (date, stock_id)
         )
     """
@@ -75,8 +78,8 @@ class StockDB:
         (date, stock_id, stock_name, trade_volume, trade_value, 
          opening_price, highest_price, lowest_price, closing_price, 
          price_change, change_percent, transaction_count,
-         ma5, ma10, ma20, ma60)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ma5, ma10, ma20, ma60, pe_ratio, pb_ratio, dividend_yield)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """
 
     GET_FOLLOWED_STOCKS = """
