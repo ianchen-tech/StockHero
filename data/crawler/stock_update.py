@@ -116,7 +116,8 @@ class StockUpdater:
                             change_percent,                   # 漲跌百分比
                             int(row[8].replace(",", "")),     # 成交筆數
                             None, None, None, None,           # 均線值先設為 None
-                            None, None, None                  # 本益比、淨值比、殖利率先設為 None
+                            None, None, None,                 # 本益比、淨值比、殖利率先設為 None
+                            None, None                        # K值、D值先設為 None
                         )
                     except (ValueError, IndexError) as e:
                         logger.exception(f"Error processing data for {stock_id}: {e}")

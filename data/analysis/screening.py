@@ -40,7 +40,8 @@ class StockScreener:
             df = pd.DataFrame(
                 data,
                 columns=['date', 'stock_id', 'trade_volume', 'closing_price', 
-                        'ma5', 'ma10', 'ma20', 'ma60']
+                        'ma5', 'ma10', 'ma20', 'ma60', 'pe_ratio', 'pb_ratio', 
+                        'dividend_yield', 'k_value', 'd_value']
             )
             
             # 進行條件篩選
@@ -65,7 +66,22 @@ class StockScreener:
                         "above_ma5": bool(latest['closing_price'] >= latest['ma5'] if pd.notna(latest['ma5']) else False),
                         "above_ma10": bool(latest['closing_price'] >= latest['ma10'] if pd.notna(latest['ma10']) else False),
                         "above_ma20": bool(latest['closing_price'] >= latest['ma20'] if pd.notna(latest['ma20']) else False),
-                        "above_ma60": bool(latest['closing_price'] >= latest['ma60'] if pd.notna(latest['ma60']) else False)
+                        "above_ma60": bool(latest['closing_price'] >= latest['ma60'] if pd.notna(latest['ma60']) else False),
+                        
+                        "pe_below_10": bool(latest['pe_ratio'] < 10 if pd.notna(latest['pe_ratio']) else False),
+                        "pe_below_15": bool(latest['pe_ratio'] < 15 if pd.notna(latest['pe_ratio']) else False),
+                        "dividend_above_4": bool(latest['dividend_yield'] > 4 if pd.notna(latest['dividend_yield']) else False),
+                        "dividend_above_5": bool(latest['dividend_yield'] > 5 if pd.notna(latest['dividend_yield']) else False),
+                        "pb_below_1": bool(latest['pb_ratio'] < 1 if pd.notna(latest['pb_ratio']) else False),
+                        "k_below_10": bool(latest['k_value'] < 10 if pd.notna(latest['k_value']) else False),
+                        "k_below_20": bool(latest['k_value'] < 20 if pd.notna(latest['k_value']) else False),
+                        "d_below_10": bool(latest['d_value'] < 10 if pd.notna(latest['d_value']) else False),
+                        "d_below_20": bool(latest['d_value'] < 20 if pd.notna(latest['d_value']) else False),
+                        "k_cross_d_up": bool(
+                            pd.notna(latest['k_value']) and pd.notna(latest['d_value']) and
+                            pd.notna(prev['k_value']) and pd.notna(prev['d_value']) and
+                            prev['k_value'] < prev['d_value'] and latest['k_value'] > latest['d_value']
+                        )
                     }
                     
                     results[stock_id] = json.dumps(conditions)

@@ -4,6 +4,7 @@ from data.database.db_manager import DatabaseManager
 from data.crawler.stock_update import StockUpdater
 from data.crawler.ratio_update import RatioUpdater
 from data.analysis.screening import StockScreener
+from data.analysis.kd_calculator import KDCalculator
 from datetime import datetime
 from config.logger import setup_logging
 
@@ -45,6 +46,15 @@ def update_stock_data(update_date: datetime = None):
             else:
                 logger.info(f"Ratio update completed successfully: {ratio_message}")
             
+            # 執行 KD 值計算
+            kd_calculator = KDCalculator(db_manager)
+            kd_success, kd_message = kd_calculator.calculate_kd_values(update_date)
+            
+            if not kd_success:
+                logger.warning(f"KD calculation warning: {kd_message}")
+            else:
+                logger.info(f"KD calculation completed successfully: {kd_message}")
+            
             # 執行條件篩選
             screener = StockScreener(db_manager)
             screen_success, screen_message = screener.screen_stocks(update_date)
@@ -65,6 +75,6 @@ def update_stock_data(update_date: datetime = None):
         return False, error_message
 
 if __name__ == "__main__":
-    update_date = datetime.strptime("2025-03-11", "%Y-%m-%d")
+    update_date = datetime.strptime("2025-03-24", "%Y-%m-%d")
     success, message = update_stock_data(update_date)
-    print(message)
+    # print(message)

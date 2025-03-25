@@ -125,7 +125,7 @@ class RatioUpdater:
                             update_date.strftime("%Y-%m-%d")
                         ])
                         updated_stocks.append((stock_id, stock_name))
-                        logger.info(f"Successfully updated ratio data for {stock_id} {stock_name}")
+                        # logger.info(f"Successfully updated ratio data for {stock_id} {stock_name}")
                     except Exception as e:
                         logger.exception(f"Error updating database for {stock_id}: {e}")
                         failed_stocks.append((stock_id, stock_name))
@@ -168,6 +168,6 @@ if __name__ == "__main__":
     )
     
     updater = RatioUpdater(db_manager)
-    test_date = datetime(2025, 3, 10)
+    test_date = datetime(2025, 3, 18)
     success, message = updater.update_ratio_data(test_date)
     

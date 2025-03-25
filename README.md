@@ -11,12 +11,14 @@ StockHero/
 │   ├── crawler/                # 資料抓取模組
 │   │   ├── stocks_info.py      # 各產業股票列表
 │   │   ├── stock_history.py    # 股票歷史資料
-│   │   └── stock_update.py     # 股票資料更新
+│   │   ├── stock_update.py     # 股票資料更新
+│   │   └── ratio_update.py     # 本益比、淨值比和殖利率更新
 │   ├── database/               # 資料庫相關
 │   │   ├── db_manager.py       # 資料庫管理
 │   │   └── models.py           # 資料模型定義
 │   └── analysis/               # 分析邏輯
-│       └── screening.py        # 選股邏輯
+│       ├── screening.py        # 選股邏輯
+│       └── kd_calculator.py    # KD 值計算
 ├── jobs/                       # 排程任務
 │   └── daily_update.py         # 每日更新資料
 ├── config/                     # 設定檔
