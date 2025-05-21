@@ -38,7 +38,7 @@ class StockDB:
             source VARCHAR,
             created_at TIMESTAMP,
             updated_at TIMESTAMP,
-            conditions JSON -- Ex:{"volume_increase": true, "above_ma5": true, "above_ma10": false, "above_ma20": true, "above_ma60": false}
+            conditions JSON -- Ex:{"volume_increase": false, "above_ma5": false, "above_ma10": false, "above_ma20": false, "above_ma60": true, "pe_below_10": false, "pe_below_15": false, "dividend_above_4": false, "dividend_above_5": false, "pb_below_1": false, "k_below_10": true, "k_below_20": true, "d_below_10": false, "d_below_20": true, "k_cross_d_up": false}
         )
     """
 
