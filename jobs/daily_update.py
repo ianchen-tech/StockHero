@@ -44,7 +44,7 @@ def update_stock_data(update_date: datetime = None):
     # 從環境變數讀取郵件設定
     sender_email = "ianchentech@gmail.com"
     sender_password = os.getenv("GMAIL_SENDER_PASSWORD")
-    receiver_email = "com52022@gmail.com"
+    receiver_email = "ian@cloud-latitude.com"
 
     if not sender_password:
         logger.warning("Email configuration (GMAIL_SENDER_PASSWORD) is not set. Email notification will be skipped.")
