@@ -135,7 +135,7 @@ Detailed logs are available in the system.'''
 
 
 if __name__ == "__main__":
-    update_date = datetime.strptime("2025-09-08", "%Y-%m-%d")
+    update_date = datetime.strptime("2025-09-10", "%Y-%m-%d")
     # update_date = None # 改為 None 以使用當前日期
     success, message = update_stock_data(update_date)
     print(f"Execution finished. Success: {success}, Message: {message}")
