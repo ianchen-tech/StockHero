@@ -38,6 +38,7 @@ def update_stock_data(update_date: datetime = None):
     """
     status_message = ""
     success_status = False
+    has_warnings = False  # 新增：追蹤是否有警告
     email_subject = ""
     email_body = ""
     
@@ -69,43 +70,61 @@ def update_stock_data(update_date: datetime = None):
         updater = StockUpdater(db_manager)
         update_success, update_message = updater.update_daily_data(update_date)
         
-        if update_success:
-            logger.info(f"Stock data update completed successfully: {update_message}")
-            
-            # 執行本益比、淨值比和殖利率更新
-            ratio_updater = RatioUpdater(db_manager)
-            ratio_success, ratio_message = ratio_updater.update_ratio_data(update_date)
-            
-            if not ratio_success:
-                logger.warning(f"Ratio update warning: {ratio_message}")
-            else:
-                logger.info(f"Ratio update completed successfully: {ratio_message}")
-            
-            # 執行 KD 值計算
-            kd_calculator = KDCalculator(db_manager)
-            kd_success, kd_message = kd_calculator.calculate_kd_values(update_date)
-            
-            if not kd_success:
-                logger.warning(f"KD calculation warning: {kd_message}")
-            else:
-                logger.info(f"KD calculation completed successfully: {kd_message}")
-            
-            # 執行條件篩選
-            screener = StockScreener(db_manager)
-            screen_success, screen_message = screener.screen_stocks(update_date)
-            
-            if screen_success:
-                logger.info(f"Stock screening completed successfully: {screen_message}")
-                success_status = True
-                status_message = f"[{update_date.strftime('%Y-%m-%d')}] Update and screening completed successfully."
-            else:
-                logger.error(f"Stock screening failed: {screen_message}")
-                success_status = False
-                status_message = f"[{update_date.strftime('%Y-%m-%d')}] Update succeeded but screening failed: {screen_message}"
+        # 記錄股票更新狀態
+        if not update_success:
+            logger.warning(f"Stock data update completed with warnings: {update_message}")
+            has_warnings = True
         else:
-            logger.error(f"Stock data update failed: {update_message}")
-            success_status = False
-            status_message = f"[{update_date.strftime('%Y-%m-%d')}] Stock data update failed: {update_message}"
+            logger.info(f"Stock data update completed successfully: {update_message}")
+        
+        # 無論股票更新是否完全成功，都繼續執行後續任務
+        # 執行本益比、淨值比和殖利率更新
+        ratio_updater = RatioUpdater(db_manager)
+        ratio_success, ratio_message = ratio_updater.update_ratio_data(update_date)
+        
+        if not ratio_success:
+            logger.warning(f"Ratio update warning: {ratio_message}")
+            has_warnings = True
+        else:
+            logger.info(f"Ratio update completed successfully: {ratio_message}")
+        
+        # 執行 KD 值計算
+        kd_calculator = KDCalculator(db_manager)
+        kd_success, kd_message = kd_calculator.calculate_kd_values(update_date)
+        
+        if not kd_success:
+            logger.warning(f"KD calculation warning: {kd_message}")
+            has_warnings = True
+        else:
+            logger.info(f"KD calculation completed successfully: {kd_message}")
+        
+        # 執行條件篩選
+        screener = StockScreener(db_manager)
+        screen_success, screen_message = screener.screen_stocks(update_date)
+        
+        if screen_success:
+            logger.info(f"Stock screening completed successfully: {screen_message}")
+        else:
+            logger.error(f"Stock screening failed: {screen_message}")
+            has_warnings = True
+        
+        # 根據整體執行結果設定狀態
+        if has_warnings:
+            success_status = True  # 整體仍視為成功，但有警告
+            warning_details = []
+            if not update_success:
+                warning_details.append(f"股票更新: {update_message}")
+            if not ratio_success:
+                warning_details.append(f"比率更新: {ratio_message}")
+            if not kd_success:
+                warning_details.append(f"KD計算: {kd_message}")
+            if not screen_success:
+                warning_details.append(f"條件篩選: {screen_message}")
+            
+            status_message = f"[{update_date.strftime('%Y-%m-%d')}] Update completed with warnings: {'; '.join(warning_details)}"
+        else:
+            success_status = True
+            status_message = f"[{update_date.strftime('%Y-%m-%d')}] All tasks completed successfully."
             
     except Exception as e:
         error_message = f"[{update_date.strftime('%Y-%m-%d') if update_date else 'Unknown Date'}] Update failed: {str(e)}"
@@ -114,14 +133,19 @@ def update_stock_data(update_date: datetime = None):
         status_message = error_message
     finally:
         if send_email_notification:
-            if success_status:
+            if success_status and not has_warnings:
                 email_subject = f"StockHero Daily Update Successful for {update_date.strftime('%Y-%m-%d') if update_date else 'Unknown Date'}"
+                status_text = "Success"
+            elif success_status and has_warnings:
+                email_subject = f"StockHero Daily Update WARNING for {update_date.strftime('%Y-%m-%d') if update_date else 'Unknown Date'}"
+                status_text = "Success with Warnings"
             else:
                 email_subject = f"StockHero Daily Update FAILED for {update_date.strftime('%Y-%m-%d') if update_date else 'Unknown Date'}"
+                status_text = "Failure"
             
             email_body = f'''Update process finished.
 
-Status: {'Success' if success_status else 'Failure'}
+Status: {status_text}
 Message: {status_message}
 
 Detailed logs are available in the system.'''
@@ -135,7 +159,7 @@ Detailed logs are available in the system.'''
 
 
 if __name__ == "__main__":
-    update_date = datetime.strptime("2025-09-10", "%Y-%m-%d")
+    update_date = datetime.strptime("2025-09-25", "%Y-%m-%d")
     # update_date = None # 改為 None 以使用當前日期
     success, message = update_stock_data(update_date)
     print(f"Execution finished. Success: {success}, Message: {message}")
